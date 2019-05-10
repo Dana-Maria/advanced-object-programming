@@ -10,28 +10,26 @@ import java.util.List;
 
 public abstract class Pacient extends Persoana {
 
-    protected Doctor doctor;
+    protected Integer doctorId;
     protected Boolean operat;
-    protected List<String> alergii;
     protected Boolean subTratament;
     protected Boolean internat;
     protected String boala;
 
 
     public Pacient(String nume, Calendar dataNasterii, String cnp, String numarTelefon,
-                   String grupaSange, Boolean operat, List<String> alergii,
-                   Boolean subTratament, Boolean internat, String boala, Doctor doctor) {
+                   String grupaSange, Boolean operat, Boolean subTratament,
+                   Boolean internat, String boala, Integer doctorId) {
         super(nume, dataNasterii, cnp, numarTelefon, grupaSange);
         this.operat = operat;
-        this.alergii = alergii;
         this.subTratament = subTratament;
         this.internat = internat;
         this.boala = boala;
-        this.doctor = doctor;
+        this.doctorId = doctorId;
     }
 
     public Pacient() {
-        alergii = new ArrayList<>();
+
     }
 
     public Boolean getOperat() {
@@ -40,14 +38,6 @@ public abstract class Pacient extends Persoana {
 
     public void setOperat(Boolean operat) {
         this.operat = operat;
-    }
-
-    public List<String> getAlergii() {
-        return alergii;
-    }
-
-    public void setAlergii(List<String> alergii) {
-        this.alergii = alergii;
     }
 
     public Boolean getSubTratament() {
@@ -74,7 +64,11 @@ public abstract class Pacient extends Persoana {
         this.boala = boala;
     }
 
-    public Doctor getDoctor() {
-        return doctor;
+    public Integer getDoctorId() {
+        return doctorId;
+    }
+
+    public void setDoctorId(Integer doctorId) {
+        this.doctorId = doctorId;
     }
 }

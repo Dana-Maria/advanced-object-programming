@@ -8,9 +8,9 @@ import java.util.List;
 public class PacientUrgenta extends Pacient {
     public PacientUrgenta(String nume, Calendar dataNasterii, String cnp, 
                           String numarTelefon, String grupaSange, Boolean operat, 
-                          List<String> alergii, Boolean subTratament,
-                          Boolean internat, String boala, Doctor doctor) {
+                           Boolean subTratament,
+                          Boolean internat, String boala, Integer doctorId) {
         super(nume, dataNasterii, cnp, numarTelefon, grupaSange, operat, 
-                alergii, subTratament, internat, boala, doctor);
+                subTratament, internat, boala, doctorId);
     }
 }

@@ -1,0 +1,5 @@
+Nume pacient,Tip Pacient,Data nasterii,CNP,Nr. telefon,Grupa de sange,Operat,Sub Tratament,Internat,Boala,Id Doctor,Data programarii
+Popescu Sergiu,Urgenta,3.11.1980,12345678975,076436473,A,true,false,false,X,1,
+Vasile Ion,Urgenta,3.03.1990,12345678975,076436473,AB,true,false,false,X,1,
+Sandulescu Sergiu,Programare,25.01.1985,12345678975,076436473,A,true,false,false,X,2,4.01.2019 14:20
+Popescu Ion,Urgenta,9.11.1978,1781109368743,0787654321,AB,true,false,true,Boala1,1,

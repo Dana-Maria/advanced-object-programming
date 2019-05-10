@@ -11,10 +11,14 @@ public class PacientCuProgramare extends Pacient {
 
     public PacientCuProgramare(String nume, Calendar dataNasterii, String cnp,
                                String numarTelefon, String grupaSange, Boolean operat,
-                               List<String> alergii, Boolean subTratament, Boolean internat,
-                               String boala, Doctor doctor, Calendar ora) {
+                               Boolean subTratament, Boolean internat,
+                               String boala, Integer doctorId, Calendar ora) {
         super(nume, dataNasterii, cnp, numarTelefon, grupaSange, operat,
-                alergii, subTratament, internat, boala, doctor);
+                subTratament, internat, boala, doctorId);
         this.ora = ora;
+    }
+
+    public Calendar getOra() {
+        return ora;
     }
 }

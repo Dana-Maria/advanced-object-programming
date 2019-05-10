@@ -1,26 +1,45 @@
 package com.martac.fmi;
 
-import com.martac.fmi.models.doctors.Doctor;
-import com.martac.fmi.models.doctors.DoctorCardiolog;
-import com.martac.fmi.models.doctors.DoctorEstetician;
+import com.martac.fmi.models.doctors.*;
 import com.martac.fmi.models.pacients.Pacient;
 import com.martac.fmi.models.pacients.PacientCuProgramare;
 import com.martac.fmi.models.pacients.PacientUrgenta;
+import com.martac.fmi.services.AuditService;
 import com.martac.fmi.services.DoctorService;
 import com.martac.fmi.services.PacientService;
+import com.martac.fmi.services.ReadService;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 
 public class Main {
 
     private static List<Pacient> pacients = new ArrayList<>();
     private static List<Doctor> doctors = new ArrayList<>();
+
+    private static Calendar getCalendarFromString(String data, boolean ora) {
+        String[] splitData = data.split("\\.");
+
+        int zi = Integer.parseInt(splitData[0]);
+        int luna = Integer.parseInt(splitData[1]);
+
+        if (ora) {
+            String[] splitLastElement = splitData[2].split(" ");
+            int an = Integer.parseInt(splitLastElement[0]);
+
+            String[] splitOra = splitLastElement[1].split(":");
+            int oraInt = Integer.parseInt(splitOra[0]);
+            int minut = Integer.parseInt(splitOra[1]);
+
+            return new GregorianCalendar(an, luna, zi, oraInt, minut);
+        }
+
+        int an = Integer.parseInt(splitData[2]);
+        return new GregorianCalendar(an, luna, zi);
+    }
 
     private static void afiseazaMeniu() {
         System.out.println();
@@ -43,46 +62,111 @@ public class Main {
     }
 
     private static void adaugaPacienti() {
-        PacientUrgenta p1 = new PacientUrgenta("Popescu Sergiu", new GregorianCalendar(1980, 11, 3),
-                "12345678975", "076436473", "A", true,
-                Arrays.asList("Animale", "Flori"), false,
-                false, "X", doctors.get(0));
-        PacientUrgenta p2 = new PacientUrgenta("Vasile Ion", new GregorianCalendar(1990, 11, 3),
-                "12345678975", "076436473", "AB", true,
-                Arrays.asList("Animale"), false,
-                false, "X", doctors.get(0));
-        PacientCuProgramare p3 = new PacientCuProgramare("Sandulescu Sergiu", new GregorianCalendar(1980, 11, 3),
-                "12345678975", "076436473", "A", true,
-                Arrays.asList("Animale", "Flori"), false,
-                false, "X", doctors.get(0),
-                new GregorianCalendar(2019, 1, 4, 14, 20));
+        try {
+            ReadService readService = new ReadService("src/pacient.csv");
+            readService.readLine(); // citim prima linie cu numele coloanelor
 
-        pacients.add(p1);
-        pacients.add(p2);
-        pacients.add(p3);
+            String[] line = readService.readLine();
+            while (line != null) {
+                String nume = line[0].trim();
+                String dataNasterii = line[2].trim();
+                String CNP = line[3].trim();
+                String nrTelefon = line[4].trim();
+                String grupaSange = line[5].trim();
+                String operat = line[6].trim();
+                String tratament = line[7].trim();
+                String internat = line[8].trim();
+                String boala = line[9].trim();
+                String idDoctor = line[10].trim();
+
+                Calendar dataNasteriiCalendar = getCalendarFromString(dataNasterii, false);
+
+                if (line[1].trim().equalsIgnoreCase("urgenta")) {
+                    PacientUrgenta pacientUrgenta = new PacientUrgenta(nume, dataNasteriiCalendar, CNP, nrTelefon,
+                            grupaSange, Boolean.parseBoolean(operat), Boolean.parseBoolean(tratament),
+                            Boolean.parseBoolean(internat), boala, Integer.parseInt(idDoctor));
+
+                    pacients.add(pacientUrgenta);
+                }
+                else {
+                    Calendar ora = getCalendarFromString(line[11].trim(), true);
+                    PacientCuProgramare pacientCuProgramare = new PacientCuProgramare(nume, dataNasteriiCalendar,
+                            CNP, nrTelefon, grupaSange, Boolean.parseBoolean(operat),
+                            Boolean.parseBoolean(tratament), Boolean.parseBoolean(internat), boala,
+                            Integer.parseInt(idDoctor), ora);
+
+                    pacients.add(pacientCuProgramare);
+                }
+
+                line = readService.readLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Eroare la citirea din fisier");
+        }
     }
 
     private static void adaugaDoctor() {
-        DoctorEstetician d1 = new DoctorEstetician("Grigore Alexandru",
-                new GregorianCalendar(1975, 12, 28),
-                "732573248572", "0724832424", "O", 20,
-                new GregorianCalendar(1999, 11, 3));
-        DoctorCardiolog d2 = new DoctorCardiolog("Todor Paul",
-                new GregorianCalendar(1960, 2, 4),
-                "732573248572", "0724832424", "O", 34,
-                new GregorianCalendar(1985, 11, 3));
-        DoctorEstetician d3 = new DoctorEstetician("Vlad George",
-                new GregorianCalendar(1970, 12, 28),
-                "732573248572", "0724832424", "O", 24,
-                new GregorianCalendar(1995, 11, 3));
-        doctors.add(d1);
-        doctors.add(d2);
-        doctors.add(d3);
+        try {
+            ReadService readService = new ReadService("src/doctor.csv");
+            readService.readLine(); // citim prima linie cu numele coloanelor
+
+            String[] line = readService.readLine();
+            while (line != null) {
+                String nume = line[0].trim();
+                String dataNasterii = line[2].trim();
+                String CNP = line[3].trim();
+                String nrTelefon = line[4].trim();
+                String grupaSange = line[5].trim();
+                String aniExperienta = line[6].trim();
+                String dataAngajarii = line[7].trim();
+
+                Calendar dataNasteriiCalendar = getCalendarFromString(dataNasterii, false);
+                Calendar dataAngajariiCalendar = getCalendarFromString(dataAngajarii, false);
+
+                if (line[1].trim().equalsIgnoreCase("estetician")) {
+                    DoctorEstetician doctorEstetician = new DoctorEstetician(nume, dataNasteriiCalendar, CNP, nrTelefon,
+                            grupaSange, Integer.parseInt(aniExperienta), dataAngajariiCalendar);
+
+                    doctors.add(doctorEstetician);
+                }
+                else if (line[1].trim().equalsIgnoreCase("cardiolog")) {
+                    DoctorCardiolog doctorCardiolog = new DoctorCardiolog(nume, dataNasteriiCalendar, CNP, nrTelefon,
+                            grupaSange, Integer.parseInt(aniExperienta), dataAngajariiCalendar);
+
+                    doctors.add(doctorCardiolog);
+                }
+                else if (line[1].trim().equalsIgnoreCase("oftalmolog")) {
+                    DoctorOftalmolog doctorOftalmolog = new DoctorOftalmolog(nume, dataNasteriiCalendar, CNP, nrTelefon,
+                            grupaSange, Integer.parseInt(aniExperienta), dataAngajariiCalendar);
+
+                    doctors.add(doctorOftalmolog);
+                }
+                else if (line[1].trim().equalsIgnoreCase("ortoped")) {
+                    DoctorOrtoped doctorOrtoped = new DoctorOrtoped(nume, dataNasteriiCalendar, CNP, nrTelefon,
+                            grupaSange, Integer.parseInt(aniExperienta), dataAngajariiCalendar);
+
+                    doctors.add(doctorOrtoped);
+                }
+                else if (line[1].trim().equalsIgnoreCase("pediatru")) {
+                    DoctorPediatru doctorPediatru = new DoctorPediatru(nume, dataNasteriiCalendar, CNP, nrTelefon,
+                            grupaSange, Integer.parseInt(aniExperienta), dataAngajariiCalendar);
+
+                    doctors.add(doctorPediatru);
+                }
+
+                line = readService.readLine();
+            }
+        } catch (IOException e) {
+            System.out.println("A aparut o eroare la citirea din fisier");
+        }
     }
 
     public static void main(String[] args) {
         adaugaDoctor();
         adaugaPacienti();
+
+        AuditService auditService = AuditService.getInstance();
+
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         int optiun = 0;
@@ -100,10 +184,12 @@ public class Main {
             switch (optiun) {
                 case 1: {
                     pacientService.display();
+                    auditService.writeLogLine("Afiseaza Pacienti");
                     break;
                 }
                 case 2: {
                     doctorService.display();
+                    auditService.writeLogLine("Afiseaza Doctori");
                     break;
                 }
                 case 3: {
@@ -111,15 +197,20 @@ public class Main {
                         System.out.print("n = ");
                         int n = Integer.parseInt(bufferedReader.readLine());
                         doctorService.display(n);
+                        auditService.writeLogLine("Afiseaza Doctori cu peste " + n + " ani experienta");
                     } catch (IOException e) {
                         System.err.println("Something went wrong");
                     }
                     break;
                 }
                 case 4: {
+                    pacientService.displayPatients(false);
+                    auditService.writeLogLine("Afiseaza pacientii cu programare");
                     break;
                 }
                 case 5: {
+                    pacientService.displayPatients(true);
+                    auditService.writeLogLine("Afiseaza urgentele");
                     break;
                 }
                 case 6: {
@@ -132,6 +223,15 @@ public class Main {
                     break;
                 }
                 case 9: {
+                    try {
+                        readAndStoreNewPatient(bufferedReader, pacientService);
+                        auditService.writeLogLine("Adauga un nou pacient");
+
+                        System.out.println();
+                        System.out.println("Pacientul a fost adaugat cu succes!");
+                    } catch (IOException ex) {
+                        System.err.println("Eroare la citire");
+                    }
                     break;
                 }
                 case 10: {
@@ -162,5 +262,71 @@ public class Main {
             }
         }
 
+    }
+
+    private static void readAndStoreNewPatient(BufferedReader bufferedReader, PacientService pacientService) throws IOException {
+        String nume = readField(bufferedReader, "Numele pacientului");
+        String tip = readField(bufferedReader, "Tip pacient (urgenta / programare): ");
+        String ziuaNasterii = readField(bufferedReader, "Data nasterii:\nziua: ");
+        String lunaNasterii = readField(bufferedReader, "luna (1-12): ");
+        String anulNasterii = readField(bufferedReader, "anul: ");
+        String cnp = readField(bufferedReader, "cnp: ");
+        String nrTelefon = readField(bufferedReader, "Numar de telefon: ");
+        String grupaSange = readField(bufferedReader, "Grupa de sange (O / A / B / AB): ");
+        String operat = readField(bufferedReader, "Este pacientul operat (Y / N): ");
+        String subTratament = readField(bufferedReader, "Este pacientul sub tratament (Y / N): ");
+        String internat = readField(bufferedReader, "Este pacientul internat (Y / N): ");
+        String boala = readField(bufferedReader, "Boala de care sufera: ");
+        String doctor = readField(bufferedReader, "Doctorul care se ocupa de pacient: ");
+
+        Calendar dataNasterii = new GregorianCalendar(Integer.parseInt(anulNasterii),
+                Integer.parseInt(lunaNasterii), Integer.parseInt(ziuaNasterii));
+
+
+        if (tip.equalsIgnoreCase("programare")) {
+            String ziuaProgramarii = readField(bufferedReader, "Data programarii:\nziua: ");
+            String lunaProgramarii = readField(bufferedReader, "luna (1-12): ");
+            String anulProgramarii = readField(bufferedReader, "anul: ");
+            String oraProgramarii = readField(bufferedReader, "ora: ");
+            String minutulProgramarii = readField(bufferedReader, "minutul: ");
+
+            Calendar dataProgramarii = new GregorianCalendar(Integer.parseInt(anulProgramarii),
+                    Integer.parseInt(lunaProgramarii), Integer.parseInt(ziuaProgramarii),
+                    Integer.parseInt(oraProgramarii), Integer.parseInt(minutulProgramarii));
+
+            PacientCuProgramare pacientCuProgramare = new PacientCuProgramare(nume, dataNasterii,
+                    cnp, nrTelefon, grupaSange, getBooleanFromStringYN(operat), getBooleanFromStringYN(subTratament),
+                    getBooleanFromStringYN(internat), boala, getDoctorIdFromName(doctor), dataProgramarii);
+
+            pacientService.add(pacientCuProgramare);
+        }
+        else if (tip.equalsIgnoreCase("urgenta")) {
+            PacientUrgenta pacientUrgenta = new PacientUrgenta(nume, dataNasterii, cnp, nrTelefon, grupaSange,
+                    getBooleanFromStringYN(operat), getBooleanFromStringYN(subTratament),
+                    getBooleanFromStringYN(internat), boala, getDoctorIdFromName(doctor));
+
+            pacientService.add(pacientUrgenta);
+        }
+    }
+
+    private static String readField(BufferedReader bufferedReader, String message) throws IOException {
+        System.out.println();
+        System.out.println(message);
+
+        return bufferedReader.readLine();
+    }
+
+    private static boolean getBooleanFromStringYN(String yn) {
+        return yn.equalsIgnoreCase("y");
+    }
+
+    private static int getDoctorIdFromName(String name) {
+        for (int i = 0; i < doctors.size(); i++) {
+            if (doctors.get(i).getNume().equalsIgnoreCase(name)) {
+                return i+1;
+            }
+        }
+
+        return 0;
     }
 }
