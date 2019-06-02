@@ -71,4 +71,10 @@ public abstract class Pacient extends Persoana {
     public void setDoctorId(Integer doctorId) {
         this.doctorId = doctorId;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + ", boala = " + boala + ", operat = " + operat + ", internat = " + internat +
+                ", operat = " + operat;
+    }
 }

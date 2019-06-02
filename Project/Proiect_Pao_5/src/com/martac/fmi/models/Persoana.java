@@ -65,8 +65,8 @@ public abstract class Persoana {
 
     @Override
     public String toString() {
-        return nume + " nascut la data de " + dataNasterii.get(Calendar.DAY_OF_MONTH) + "."
-                + dataNasterii.get(Calendar.MONTH) + "." + dataNasterii.get(Calendar.YEAR) +
-                " cu cnp " + cnp + " cu numarul de telefon " + numarTelefon;
+        return nume + // " nascut la data de " + dataNasterii.get(Calendar.DAY_OF_MONTH) + "."
+//                + dataNasterii.get(Calendar.MONTH) + "." + dataNasterii.get(Calendar.YEAR) +
+                " cu cnp " + cnp;
     }
 }

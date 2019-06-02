@@ -47,4 +47,9 @@ public abstract class Doctor extends Persoana {
 
     public Doctor() {
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + " avand " + aniExperienta + " ani experienta";
+    }
 }
